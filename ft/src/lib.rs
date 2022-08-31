@@ -165,4 +165,41 @@ mod tests {
         assert_eq!(contract.ft_balance_of(accounts(2)).0, (TOTAL_SUPPLY - transfer_amount));
         assert_eq!(contract.ft_balance_of(accounts(1)).0, transfer_amount);
     }
+
+    
+    /// Current total storage usage of this smart contract that this account would be paying for.
+    #[test]
+    fn storage_usage() -> StorageUsage {
+        unsafe { sys::storage_usage() }
+    }
+
+
+    /// The balance attached to the given account. This includes the attached_deposit that was
+    /// attached to the transaction
+    #[test]
+    fn account_balance() -> Balance {
+        let data = [0u8; size_of::<Balance>()];
+        unsafe { sys::account_balance(data.as_ptr() as u64) };
+        Balance::from_le_bytes(data)
+    }
+
+
+
+
+    #[test]
+    pub fn current_account_id() -> AccountId {
+        assert_valid_account_id(method_into_register!(current_account_id))
+    }
+
+    /// Helper function to convert and check the account ID from bytes from the runtime.
+    fn assert_valid_account_id(bytes: Vec<u8>) -> AccountId {
+    String::from_utf8(bytes)
+        .ok()
+        .and_then(|s| AccountId::try_from(s).ok())
+        .unwrap_or_else(|| abort())
+    }   
+
+
+    
+
 }
